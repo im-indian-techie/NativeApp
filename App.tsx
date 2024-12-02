@@ -1,118 +1,97 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { NavigationContainer } from '@react-navigation/native';
+import AudioPlayer from './src/screens/AudioPlayer';
+import Videos from './src/screens/Videos';
+import TrackPlayer from 'react-native-track-player';
+import Audios from './src/screens/Audios';
+import VideoPlayer from './src/screens/VideoPlayer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
+import { BLACK, YELLOW } from './src/assets/colors';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// export type RootStackParamList = {
+//   Home: undefined;
+//   Audio: { message: string };
+// };
+const App = () => {
+  const AudioStack = createNativeStackNavigator();
+  const VideoStack = createNativeStackNavigator();
+  const RootStack = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
+  useEffect(() => {
+    initializePlayer();
+  }, [])
+  const initializePlayer = async () => {
+    await TrackPlayer.setupPlayer();
+
+  }
+  function AudioScreen() {
+    return (
+      <AudioStack.Navigator screenOptions={{ headerShown: false }}>
+        <AudioStack.Screen name="Audios" component={Audios} />
+      </AudioStack.Navigator>
+    )
+  }
+  function VideoScreen() {
+    return (<VideoStack.Navigator screenOptions={{ headerShown: false }}>
+      <VideoStack.Screen name='Videos' component={Videos} />
+
+    </VideoStack.Navigator>)
+  }
+  function TabNavigator() {
+    return (
+      <Tab.Navigator screenOptions={{ tabBarStyle: { backgroundColor: BLACK }, headerStyle: styles.header, headerTitleStyle: styles.headerTitle }}>
+        <Tab.Screen name="Audios" component={AudioScreen} options={{
+          tabBarLabel: 'Audios', tabBarLabelStyle: styles.tabLabel,
+          tabBarIcon: ({ focused, color, size }) => {
+            const colors = focused ? YELLOW : color;
+            return (
+              <FontAwesome name={'music'} color={colors} size={size} />
+            )
           },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+        }} />
+        <Tab.Screen name="Videos" component={VideoScreen} options={{
+          tabBarLabel: 'Videos', tabBarLabelStyle: styles.tabLabel, tabBarIcon: ({ focused, color, size }) => {
+            const colors = focused ? YELLOW : color;
+            return (
+              <FontAwesome name={'video-camera'} color={colors} size={size} />
+            )
+          }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+        }} />
+      </Tab.Navigator>
+    )
+  }
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <NavigationContainer >
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        backgroundColor={BLACK}
+        barStyle="light-content"
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name='Home' component={TabNavigator} />
+        <AudioStack.Screen name='AudioPlayer' component={AudioPlayer} />
+        <VideoStack.Screen name='VideoPlayer' component={VideoPlayer} />
+      </RootStack.Navigator>
+    </NavigationContainer>
+  )
 }
+
+export default App
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  header: {
+    backgroundColor: YELLOW,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  headerTitle: {
+    color: BLACK,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+  tabLabel: {
+    color: YELLOW,
+  }
+})
